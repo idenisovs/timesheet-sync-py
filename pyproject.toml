@@ -7,10 +7,9 @@ authors = [
     { name = "Ilja Denisovs", email = "i.denisovs@gmail.com" }
 ]
 requires-python = ">=3.15"
-dependencies = []
-
-[project.scripts]
-main = 'tst:main'
+dependencies = [
+    'fastapi[standard]>=0.165.0',
+]
 
 [build-system]
 requires = ["uv_build>=0.13.9,<0.14.0"]
@@ -18,3 +17,6 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-name = 'tst'
+
+[tool.fastapi]
+entrypoint = 'tst:app'
