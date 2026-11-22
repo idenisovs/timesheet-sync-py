@@ -1,6 +1,14 @@
+from importlib.metadata import version
+
 from fastapi import FastAPI
 
-app = FastAPI()
+from .healthcheck import healthcheck_api
+from .sync import sync_api
+
+app = FastAPI(version=version('timesheet-sync-py'))
+
+app.include_router(healthcheck_api)
+app.include_router(sync_api)
 
 
 @app.get('/')
