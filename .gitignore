@@ -11,3 +11,6 @@ wheels/
 
 # Local sync data
 /changes.tsv
+
+# Other
+.DS_Store
