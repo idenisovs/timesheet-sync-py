@@ -1,0 +1,35 @@
+### Call the Sync API
+
+POST http://localhost:8000/sync
+Accept: application/json
+Content-Type: application/json
+
+[
+  {
+    "id": "01954d68-ccf0-7c70-9eb3-e1b786c5536a",
+    "entity": "activity",
+    "entityId": "activity-1",
+    "before": {"name": "Planning"},
+    "after": {"name": "Sprint planning"},
+    "status": "pending",
+    "createdAt": "2026-11-23T12:00:00Z"
+  },
+  {
+    "id": "01954d68-ccf0-7c70-9eb3-e1b786c5536b",
+    "entity": "activity",
+    "entityId": "activity-2",
+    "before": {"name": "Development"},
+    "after": {"name": "API development"},
+    "status": "pending",
+    "createdAt": "2026-11-23T12:01:00Z"
+  },
+  {
+    "id": "01954d68-ccf0-7c70-9eb3-e1b786c5536c",
+    "entity": "activity",
+    "entityId": "activity-3",
+    "before": null,
+    "after": {"name": "Code review"},
+    "status": "pending",
+    "createdAt": "2026-11-23T12:02:00Z"
+  }
+]
