@@ -1,0 +1,4 @@
+### Call the Healtcheck API
+
+GET http://localhost:8000/healthcheck
+Accept: application/json
