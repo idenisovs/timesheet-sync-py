@@ -1,6 +1,6 @@
+import logging
 from contextlib import asynccontextmanager
 from importlib.metadata import version
-from pathlib import Path
 
 from fastapi import FastAPI
 
@@ -10,11 +10,10 @@ from .sync import sync_api
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    entities = Path('entities.tsv')
-
-    if not entities.exists():
-        entities.touch()
-
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(levelname)s %(name)s: %(message)s',
+    )
     yield
 
 
