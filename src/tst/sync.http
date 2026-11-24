@@ -10,7 +10,14 @@ Content-Type: application/json
     "entity": "activity",
     "entityId": "activity-1",
     "before": {"name": "Planning"},
-    "after": {"name": "Sprint planning"},
+    "after": {
+      "id": "activity-1",
+      "name": "Sprint planning",
+      "date": "2026-11-23",
+      "from": "09:00",
+      "till": "10:00",
+      "duration": "1h"
+    },
     "status": "pending",
     "createdAt": "2026-11-23T12:00:00Z"
   },
@@ -18,8 +25,15 @@ Content-Type: application/json
     "id": "01954d68-ccf0-7c70-9eb3-e1b786c5536b",
     "entity": "activity",
     "entityId": "activity-2",
-    "before": {"name": "Development"},
-    "after": {"name": "API development"},
+    "before": {
+      "id": "activity-2",
+      "name": "Development",
+      "date": "2026-11-23",
+      "from": "10:00",
+      "till": "11:30",
+      "duration": "1h 30m"
+    },
+    "after": null,
     "status": "pending",
     "createdAt": "2026-11-23T12:01:00Z"
   },
@@ -28,7 +42,14 @@ Content-Type: application/json
     "entity": "activity",
     "entityId": "activity-3",
     "before": null,
-    "after": {"name": "Code review"},
+    "after": {
+      "id": "activity-3",
+      "name": "Code review",
+      "date": "2026-11-23",
+      "from": "11:30",
+      "till": "12:00",
+      "duration": "30m"
+    },
     "status": "pending",
     "createdAt": "2026-11-23T12:02:00Z"
   }

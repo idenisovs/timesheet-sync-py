@@ -1,66 +1,96 @@
 import csv
+import logging
 from datetime import UTC, datetime
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from threading import Lock
 
 from fastapi import APIRouter
 
+from .models.activity import Activity
 from .models.change import Change
 
+logger = logging.getLogger(__name__)
+
+ENTITY_FIELDS = (
+    'entity_id',
+    'entity_name',
+    'name',
+    'date',
+    'from',
+    'till',
+    'duration',
+    'change_id',
+    'changed_at',
+    'removed_at',
+)
+
 sync_api = APIRouter()
-changes_path = Path('changes.tsv')
-changes_lock = Lock()
+sync_lock = Lock()
 
 
-def _with_utc_default(value: datetime) -> datetime:
+def _to_utc(value: datetime) -> datetime:
     if value.tzinfo is None:
         return value.replace(tzinfo=UTC)
-    return value
 
-
-def _read_changes() -> dict[str, datetime]:
-    with changes_path.open(encoding='utf-8', newline='') as file:
-        return {
-            row['id']: _with_utc_default(datetime.fromisoformat(row['datetime']))
-            for row in csv.DictReader(file, delimiter='\t')
-        }
-
-
-def _write_changes(registered_changes: dict[str, datetime]) -> None:
-    with TemporaryDirectory(dir=changes_path.parent) as directory:
-        temporary_path = Path(directory) / changes_path.name
-        with temporary_path.open('w', encoding='utf-8', newline='') as file:
-            writer = csv.writer(file, delimiter='\t', lineterminator='\n')
-            writer.writerow(('id', 'datetime'))
-            writer.writerows(
-                (entity_id, created_at.isoformat())
-                for entity_id, created_at in registered_changes.items()
-            )
-        temporary_path.replace(changes_path)
+    return value.astimezone(UTC)
 
 
 @sync_api.post('/sync')
 def sync(changes: list[Change]) -> dict[str, str]:
-    with changes_lock:
-        needs_write = False
+    logger.info('SYNC endpoint received %d changes', len(changes))
 
-        try:
-            registered_changes = _read_changes()
-        except FileNotFoundError:
-            registered_changes = {}
-            needs_write = True
+    with sync_lock, open('entities.tsv', 'r+', encoding='utf-8', newline='') as entities:
+        reader = csv.DictReader(entities, delimiter='\t')
+        rows = list(reader)
 
         for change in changes:
+            if change.entity != 'activity':
+                logger.warning(f'Skipping the entity {change.entity}!')
+                continue
+
             entity_id = str(change.entity_id)
-            created_at = _with_utc_default(change.created_at)
-            registered_at = registered_changes.get(entity_id)
+            row = next((row for row in rows if row['entity_id'] == entity_id), None)
 
-            if registered_at is None or registered_at < created_at:
-                registered_changes[entity_id] = created_at
-                needs_write = True
+            change_created_at = _to_utc(change.created_at)
 
-        if needs_write:
-            _write_changes(registered_changes)
+            if row is None:
+                logger.info('Creating a new entity row!')
 
-    return {'message': 'ok'}
+                row = {
+                    'entity_id': entity_id,
+                    'entity_name': change.entity,
+                    'removed_at': None,
+                }
+
+                rows.append(row)
+            else:
+                row_changed_at = _to_utc(datetime.fromisoformat(row['changed_at']))
+
+                if row_changed_at > change_created_at:
+                    logger.info('There is a more recent change, skipping!')
+                    continue
+
+            row['change_id'] = str(change.id)
+            row['changed_at'] = change_created_at.isoformat()
+
+            if change.after:
+                logger.info(f'Updating the {change.entity}!')
+                activity = Activity.model_construct(**change.after)
+
+                row['name'] = activity.name
+                row['date'] = activity.date
+                row['from'] = activity.from_
+                row['till'] = activity.till
+                row['duration'] = activity.duration
+                row['removed_at'] = None
+            else:
+                logger.info(f'Marking the {change.entity} as removed!')
+                row['removed_at'] = change_created_at.isoformat()
+
+            logger.info('Writing the changes back to the TSV!')
+            writer = csv.DictWriter(entities, ENTITY_FIELDS, delimiter='\t', lineterminator='\n')
+            entities.seek(0)
+            writer.writeheader()
+            writer.writerows(rows)
+            entities.truncate()
+
+        return {'message': 'ok'}
