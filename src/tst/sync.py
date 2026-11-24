@@ -34,8 +34,8 @@ def _write_changes(registered_changes: dict[str, datetime]) -> None:
             writer = csv.writer(file, delimiter='\t', lineterminator='\n')
             writer.writerow(('id', 'datetime'))
             writer.writerows(
-                (change_id, created_at.isoformat())
-                for change_id, created_at in registered_changes.items()
+                (entity_id, created_at.isoformat())
+                for entity_id, created_at in registered_changes.items()
             )
         temporary_path.replace(changes_path)
 
@@ -51,11 +51,11 @@ def sync(changes: list[Change]) -> dict[str, str]:
             needs_write = True
 
         for change in changes:
-            change_id = str(change.id)
+            entity_id = str(change.entity_id)
             created_at = _with_utc_default(change.created_at)
-            registered_at = registered_changes.get(change_id)
+            registered_at = registered_changes.get(entity_id)
             if registered_at is None or registered_at < created_at:
-                registered_changes[change_id] = created_at
+                registered_changes[entity_id] = created_at
                 needs_write = True
 
         if needs_write:
