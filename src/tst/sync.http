@@ -8,11 +8,11 @@ Content-Type: application/json
   {
     "id": "01954d68-ccf0-7c70-9eb3-e1b786c5536a",
     "entity": "activity",
-    "entityId": "activity-1",
+    "entityId": "01a20ec7-1ba1-738e-bc36-b290352391d4",
     "before": {"name": "Planning"},
     "after": {
-      "id": "activity-1",
-      "name": "Sprint planning",
+      "id": "01a20ec7-1ba1-738e-bc36-b290352391d4",
+      "name": "PDB-1234: Sprint Planning!",
       "date": "2026-11-23",
       "from": "09:00",
       "till": "10:00",
@@ -24,10 +24,10 @@ Content-Type: application/json
   {
     "id": "01954d68-ccf0-7c70-9eb3-e1b786c5536b",
     "entity": "activity",
-    "entityId": "activity-2",
+    "entityId": "01a20ec7-1ba1-738e-bc36-b2910178f4f8",
     "before": {
-      "id": "activity-2",
-      "name": "Development",
+      "id": "01a20ec7-1ba1-738e-bc36-b2910178f4f8",
+      "name": "PDB-777: Delivery",
       "date": "2026-11-23",
       "from": "10:00",
       "till": "11:30",
@@ -40,11 +40,11 @@ Content-Type: application/json
   {
     "id": "01954d68-ccf0-7c70-9eb3-e1b786c5536c",
     "entity": "activity",
-    "entityId": "activity-3",
+    "entityId": "01a20ec7-1ba1-738e-bc36-b2921cfa068d",
     "before": null,
     "after": {
-      "id": "activity-3",
-      "name": "Code review",
+      "id": "01a20ec7-1ba1-738e-bc36-b2921cfa068d",
+      "name": "PDB-778: Testing!",
       "date": "2026-11-23",
       "from": "11:30",
       "till": "12:00",
