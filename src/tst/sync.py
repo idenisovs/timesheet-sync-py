@@ -25,13 +25,6 @@ def sync(changes: list[Change]) -> dict[str, int]:
             skipped += 1
             continue
 
-        snapshot = change.after if change.after is not None else change.before
-
-        if not snapshot:
-            logger.warning(f'Change {change.id} is missing both snapshots!')
-            skipped += 1
-            continue
-
         entity_id = change.entity_id
         entity = entities_by_id.get(entity_id, None)
 
@@ -42,17 +35,25 @@ def sync(changes: list[Change]) -> dict[str, int]:
             }
             entities_by_id[entity_id] = entity
 
-        created_at = change.created_at
-        created_at = created_at.replace(tzinfo=created_at.tzinfo or UTC).astimezone(UTC)
-        changed_at = datetime.fromisoformat(str(entity['changed_at'])) if entity.get('changed_at') else None
+        change_created_at = change.created_at
+        change_created_at = change_created_at.replace(tzinfo=change_created_at.tzinfo or UTC).astimezone(UTC)
 
-        if changed_at is not None and changed_at >= created_at:
+        entity_changed_at = datetime.fromisoformat(str(entity['changed_at'])) if entity.get('changed_at') else None
+
+        if entity_changed_at is not None and entity_changed_at >= change_created_at:
             logger.warning('Skipping change %s at or before the last applied timestamp', change.id)
             skipped += 1
             continue
 
         entity['change_id'] = str(change.id)
-        entity['changed_at'] = str(created_at)
+        entity['changed_at'] = str(change_created_at)
+
+        snapshot = change.after if change.after is not None else change.before
+
+        if not snapshot:
+            logger.warning(f'Change {change.id} is missing both snapshots!')
+            skipped += 1
+            continue
 
         entity['name'] = snapshot.get('name', '')
         entity['date'] = snapshot.get('date', '')
