@@ -44,6 +44,7 @@ def _write_changes(registered_changes: dict[str, datetime]) -> None:
 def sync(changes: list[Change]) -> dict[str, str]:
     with changes_lock:
         needs_write = False
+
         try:
             registered_changes = _read_changes()
         except FileNotFoundError:
@@ -54,6 +55,7 @@ def sync(changes: list[Change]) -> dict[str, str]:
             entity_id = str(change.entity_id)
             created_at = _with_utc_default(change.created_at)
             registered_at = registered_changes.get(entity_id)
+
             if registered_at is None or registered_at < created_at:
                 registered_changes[entity_id] = created_at
                 needs_write = True
