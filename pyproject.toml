@@ -16,7 +16,7 @@ requires = ["uv_build>=0.13.9,<0.14.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-module-name = 'tst'
+module-name = 'timesheet'
 
 [tool.fastapi]
-entrypoint = 'tst:app'
+entrypoint = 'timesheet:app'

@@ -4,8 +4,8 @@ from importlib.metadata import version
 
 from fastapi import FastAPI
 
-from .healthcheck import healthcheck_api
-from .sync import sync_api
+from timesheet.healthckeck.api import healthcheck
+from timesheet.sync.api import sync
 
 
 @asynccontextmanager
@@ -19,8 +19,8 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(version=version('timesheet-sync-py'), lifespan=lifespan)
 
-app.include_router(healthcheck_api)
-app.include_router(sync_api)
+app.include_router(healthcheck)
+app.include_router(sync)
 
 
 @app.get('/')
