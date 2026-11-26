@@ -125,7 +125,8 @@ def format_report_day(day: str, entities: list[dict]) -> str:
 		duration = (end_minutes - start_minutes) % (24 * 60)
 		minutes_by_group[group] = minutes_by_group.get(group, 0) + duration
 
-	lines = [day, '-' * len(day)]
+	day_hours, day_minutes = divmod(sum(minutes_by_group.values()), 60)
+	lines = [f'{day} ({day_hours}h {day_minutes}m)', '-' * len(day)]
 
 	for group, total_minutes in minutes_by_group.items():
 		hours, minutes = divmod(total_minutes, 60)
@@ -150,7 +151,10 @@ def update_affected_weeks(changes):
 
 		for day, entities in days.items():
 			active_entities = [e for e in entities if e.get('removed_at') is None]
-			sections.append(format_report_day(day, active_entities))
+
+			# If there is entities, and entities is not removed, then write the day to the report
+			if active_entities:
+				sections.append(format_report_day(day, active_entities))
 
 		content = '\n\n'.join(sections) + '\n' if sections else ''
 		(reports_dir / f'{week_key}.txt').write_text(content, encoding='utf-8')
