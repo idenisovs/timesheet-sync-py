@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 import logging
 from datetime import UTC, datetime
 
@@ -9,58 +10,76 @@ logger = logging.getLogger(__name__)
 entities_by_id = {}
 
 
-def apply_changes(changes: list[Change]) -> dict[str, int]:
-    logger.debug('Applying changes!')
+@dataclass
+class ApplyChangesResult:
+	applied: list[Change] = field(default_factory=list)
+	skipped: list[Change] = field(default_factory=list)
 
-    skipped = 0
-    applied = 0
 
-    for change in changes:
-        if change.entity != 'activity':
-            logger.warning(f'Skipping {change.entity}!')
-            skipped += 1
-            continue
+def apply_changes(changes: list[Change]) -> ApplyChangesResult:
+	logger.debug('Applying changes!')
 
-        if not change.after and not change.before:
-            logger.warning(f'Change {change.id} is missing both snapshots!')
-            skipped += 1
-            continue
+	result = ApplyChangesResult()
 
-        entity_id = change.entity_id
+	for change in changes:
+		if change.entity != 'activity':
+			logger.warning(f'Skipping {change.entity}!')
+			result.skipped.append(change)
+			continue
 
-        change_created_at = change.created_at
-        change_created_at = change_created_at.replace(tzinfo=change_created_at.tzinfo or UTC).astimezone(UTC)
+		if not change.after and not change.before:
+			logger.warning(f'Change {change.id} is missing both snapshots!')
+			result.skipped.append(change)
+			continue
 
-        entity = entities_by_id.get(entity_id)
+		entity_id = change.entity_id
 
-        if entity is not None and datetime.fromisoformat(entity['changed_at']) >= change_created_at:
-            logger.warning('Skipping change %s at or before the last applied timestamp', change.id)
-            skipped += 1
-            continue
+		change_created_at = change.created_at
+		change_created_at = change_created_at.replace(tzinfo=change_created_at.tzinfo or UTC).astimezone(UTC)
 
-        snapshot = change.after if change.after is not None else change.before
-        activity = Activity.model_validate(snapshot)
+		entity = entities_by_id.get(entity_id)
 
-        entities_by_id[entity_id] = {
-            'entity_id': entity_id,
-            'entity_name': change.entity,
-            **activity.model_dump(exclude={'id'}, exclude_none=True),
-            'change_id': str(change.id),
-            'changed_at': str(change_created_at),
-            'removed_at': str(change_created_at) if change.after is None else None
-        }
+		if entity is not None and datetime.fromisoformat(entity['changed_at']) >= change_created_at:
+			logger.warning('Skipping change %s at or before the last applied timestamp', change.id)
+			result.skipped.append(change)
+			continue
 
-        logger.info(f'Change {change.id} has been applied to entity {entity_id}!')
+		snapshot = change.after if change.after is not None else change.before
+		activity = Activity.model_validate(snapshot)
 
-        applied += 1
+		entities_by_id[entity_id] = {
+			'entity_id': entity_id,
+			'entity_name': change.entity,
+			**activity.model_dump(exclude={'id'}, exclude_none=True),
+			'change_id': str(change.id),
+			'changed_at': str(change_created_at),
+			'removed_at': str(change_created_at) if change.after is None else None
+		}
 
-    logger.info(f'Applied {applied} changes, skipped {skipped} changes!')
+		logger.info(f'Change {change.id} has been applied to entity {entity_id}!')
 
-    return {
-        'skipped': skipped,
-        'applied': applied
-    }
+		result.applied.append(change)
+
+	logger.info(f'Applied {len(result.applied)} changes, skipped {len(result.skipped)} changes!')
+
+	return result
+
+
+def update_affected_days(changes):
+	logger.debug('Updating affected days!')
+
+	for change in changes:
+		snapshot = change.after if change.after is not None else change.before
+		activity = Activity.model_validate(snapshot)
+		logger.debug(activity.date)
 
 
 def sync(changes: list[Change]) -> dict[str, int]:
-    return apply_changes(changes)
+	result = apply_changes(changes)
+
+	update_affected_days(result.applied)
+
+	return {
+		'applied': len(result.applied),
+		'skipped': len(result.skipped)
+	}
