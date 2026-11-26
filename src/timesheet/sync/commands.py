@@ -2,8 +2,7 @@ from dataclasses import dataclass, field
 import logging
 from datetime import UTC, datetime
 
-from timesheet.models.activity import Activity
-from timesheet.models.change import Change
+from timesheet.sync.models import Activity, Change
 
 logger = logging.getLogger(__name__)
 

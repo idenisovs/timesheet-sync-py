@@ -2,8 +2,8 @@ import logging
 
 from fastapi import APIRouter
 
-from timesheet.models.change import Change
 from timesheet.sync import commands
+from timesheet.sync.models import Change
 
 logger = logging.getLogger(__name__)
 
