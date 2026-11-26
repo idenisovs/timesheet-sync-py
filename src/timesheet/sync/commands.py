@@ -10,6 +10,8 @@ entities_by_id = {}
 
 
 def apply_changes(changes: list[Change]) -> dict[str, int]:
+    logger.debug('Applying changes!')
+
     skipped = 0
     applied = 0
 
@@ -51,6 +53,8 @@ def apply_changes(changes: list[Change]) -> dict[str, int]:
         logger.info(f'Change {change.id} has been applied to entity {entity_id}!')
 
         applied += 1
+
+    logger.info(f'Applied {applied} changes, skipped {skipped} changes!')
 
     return {
         'skipped': skipped,
