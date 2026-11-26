@@ -146,12 +146,14 @@ def update_affected_weeks(changes):
 	reports_dir = prepare_reports_dir()
 
 	for week_key, days in changed_weeks.items():
-		sections = [format_report_day(day, entities) for day, entities in days.items() if entities]
+		sections = []
+
+		for day, entities in days.items():
+			active_entities = [e for e in entities if e.get('removed_at') is None]
+			sections.append(format_report_day(day, active_entities))
+
 		content = '\n\n'.join(sections) + '\n' if sections else ''
 		(reports_dir / f'{week_key}.txt').write_text(content, encoding='utf-8')
-
-	# report_file_name = prepare_report_file(activity.date)
-	return changed_weeks
 
 
 def sync(changes: list[Change]) -> dict[str, int]:
