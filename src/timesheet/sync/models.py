@@ -17,10 +17,10 @@ class Activity(BaseModel):
 
 
 class Change(BaseModel):
-    id: UUID7
+    id: str
     entity: Literal['activity', 'issue', 'project']
-    entity_id: str | StrictInt = Field(alias='entityId')
-    before: dict[str, str] | None
-    after: dict[str, str] | None
+    entity_id: str = Field(alias='entityId')
+    before: dict | None
+    after: dict | None
     status: str
     created_at: datetime = Field(alias='createdAt')
