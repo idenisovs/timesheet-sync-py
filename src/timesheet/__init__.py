@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from importlib.metadata import version
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from timesheet.healthckeck.api import healthcheck
 from timesheet.sync.api import sync
@@ -18,6 +19,13 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(version=version('timesheet-sync-py'), lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
 
 app.include_router(healthcheck)
 app.include_router(sync)
