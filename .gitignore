@@ -13,6 +13,7 @@ wheels/
 /changes.tsv
 /activities.tsv
 /entities.tsv
+/reports
 
 # Other
 .DS_Store
