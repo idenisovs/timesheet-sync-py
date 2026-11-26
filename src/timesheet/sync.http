@@ -1,0 +1,56 @@
+### Call the Sync API
+
+POST http://localhost:8000/sync
+Accept: application/json
+Content-Type: application/json
+
+[
+  {
+    "id": "01954d68-ccf0-7c70-9eb3-e1b786c5536a",
+    "entity": "activity",
+    "entityId": "01a20ec7-1ba1-738e-bc36-b290352391d4",
+    "before": {"name": "Planning"},
+    "after": {
+      "id": "01a20ec7-1ba1-738e-bc36-b290352391d4",
+      "name": "PDB-1234: Sprint Planning!",
+      "date": "2026-11-23",
+      "from": "09:00",
+      "till": "10:00",
+      "duration": "1h"
+    },
+    "status": "pending",
+    "createdAt": "2026-11-23T12:00:00Z"
+  },
+  {
+    "id": "01954d68-ccf0-7c70-9eb3-e1b786c5536b",
+    "entity": "activity",
+    "entityId": "01a20ec7-1ba1-738e-bc36-b2910178f4f8",
+    "before": {
+      "id": "01a20ec7-1ba1-738e-bc36-b2910178f4f8",
+      "name": "PDB-777: Delivery",
+      "date": "2026-11-23",
+      "from": "10:00",
+      "till": "11:30",
+      "duration": "1h 30m"
+    },
+    "after": null,
+    "status": "pending",
+    "createdAt": "2026-11-23T12:01:00Z"
+  },
+  {
+    "id": "01954d68-ccf0-7c70-9eb3-e1b786c5536c",
+    "entity": "activity",
+    "entityId": "01a20ec7-1ba1-738e-bc36-b2921cfa068d",
+    "before": null,
+    "after": {
+      "id": "01a20ec7-1ba1-738e-bc36-b2921cfa068d",
+      "name": "PDB-778: Testing!",
+      "date": "2026-11-23",
+      "from": "11:30",
+      "till": "12:00",
+      "duration": "30m"
+    },
+    "status": "pending",
+    "createdAt": "2026-11-23T12:02:00Z"
+  }
+]
